@@ -1,21 +1,26 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-// import frog from '@cfp/frog';
 import "./index.scss";
 import nebulas from 'nebulas';
 import NebPay from 'lib/nebpay';
-import Datetime from 'react-datetime';
-
+import { DatePicker } from 'antd';
+import moment from 'moment';
+import 'antd/dist/antd.css';
+import 'moment/locale/zh-cn';
+moment.locale('zh-cn');
 var Account = nebulas.Account,
   neb = new nebulas.Neb();
-// neb.setRequest(new nebulas.HttpRequest("https://mainnet.nebulas.io"));
-neb.setRequest(new nebulas.HttpRequest("https://testnet.nebulas.io"));
+neb.setRequest(new nebulas.HttpRequest("https://mainnet.nebulas.io"));
+// neb.setRequest(new nebulas.HttpRequest("https://testnet.nebulas.io"));
 //
 var nebPay = new NebPay();
 var serialNumber;
+var serialNumberGet;
 var intervalQuery;
-var dappAddress = "n1zFEMTvKd44aJAy1xxH2myT6bD5T3G4Sc2";
-// bb4957bc2435689e50a75aff287525eee30dbd653225f8316626e74d59b6be6c
+var intervalQueryGet;
+// var dappAddress = "n1hJcYVKqJBwo7NqJ8HKgxfmxe12nZAoCjk";
+var dappAddress = "n1wpXPMkouKidmR7sqzUA1y9B3sBK7RMz5N";
+// 9645cf72aee4fab930f853b91e209481237c4e14438e4eeb50dae75cf784e520
 export default class IndexPage extends Component {
   static displayName = 'MyDays';
   static propTypes = {
@@ -25,16 +30,21 @@ export default class IndexPage extends Component {
     super(props);
 
     this.state = {
-      author: '',
-      selectName: '',
-      selectMatchNum: 0,
-      selectMatch: '',
+      address:'',
       content: '',
-      record: [],
+      date: '',
+      records: [],
     };
   }
 
-  _submit() {
+  _submit = (date)=> {
+
+    if (!date) {
+      if (this.state.date === '' || this.state.content === '') {
+        alert("请输入内容或选择时间");
+        return;
+      }
+    }
     if (typeof (webExtensionWallet) === "undefined") {
       alert("Extension wallet is not installed, please install it first");
       return;
@@ -42,15 +52,18 @@ export default class IndexPage extends Component {
 
     var to = dappAddress;
     var value = "0";
-    var callFunction = "save";
-    var callArgs
-    if (this.state.selectName !== '') {
-      callArgs = `["${this.state.selectName}",{"author":"${this.state.author}","content":"${this.state.content}"}]`;
+    var callFunction;
+    var callArgs;
+    if (date) {
+      callFunction = "del";
+      callArgs = `["${date}"]`;
     } else {
-      callArgs = `["${this.state.selectMatchNum}",{"author":"${this.state.author}","content":"${this.state.content}"}]`;
+      callFunction = "save";
+      callArgs = `[{"date":"${this.state.date}","content":"${this.state.content}"}]`;
     }
 
-    console.log("response of push: " + callArgs)
+
+    console.log("_submit: " + callArgs)
     serialNumber = nebPay.call(to, value, callFunction, callArgs, {    //使用nebpay的call接口去调用合约,
       listener: (resp) => this.cbPush(resp)        //设置listener, 处理交易返回信息
     });
@@ -65,15 +78,13 @@ export default class IndexPage extends Component {
       .then((resp) => {
         console.log("tx result: " + resp)   //resp is a JSON string
         var respObject = JSON.parse(resp)
-        if (respObject.code === 0) {
-          if (this.state.selectName !== '') {
-            this._getRecord(this.state.selectName);
-          } else {
+        // if (respObject.data.status === 1) {
 
-            this._getRecord("", this.state.num);
-          }
+          // this._getRealRecord(respObject.data.from);
+          alert('请成功后手动刷新内容');
+
           clearInterval(intervalQuery)
-        }
+        // }
       })
       .catch((err) => {
         console.log(err);
@@ -85,26 +96,25 @@ export default class IndexPage extends Component {
   }
 
 
-  _getRecord(name, num) {
-    var from = Account.NewAccount().getAddressString();
 
+  _getRealRecord(form) {
+    if (form==='') {
+      alert('请输入正确的钱包地址');
+      return;
+    }
     var value = "0";
     var nonce = "0"
     var gas_price = "1000000"
     var gas_limit = "200000"
     var callFunction = "get";
-    var callArgs
-    if (name !== '') {
-      callArgs = `["${name}"]`;
-    } else {
-      callArgs = `["${num}"]`;
-    }
+    var callArgs = `["${form}"]`;
+
     var contract = {
       "function": callFunction,
       "args": callArgs
     }
-    console.log("response of push: " + callArgs)
-    neb.api.call(from, dappAddress, value, nonce, gas_price, gas_limit, contract).then((resp) => {
+    console.log("_getRealRecord: " + callArgs)
+    neb.api.call(form, dappAddress, value, nonce, gas_price, gas_limit, contract).then((resp) => {
       this.cbResult(resp)
     }).catch(function (err) {
       //cbSearch(err)
@@ -112,6 +122,46 @@ export default class IndexPage extends Component {
     })
 
   }
+
+  _getRecord() {
+
+    if (typeof (webExtensionWallet) === "undefined") {
+      alert("Extension wallet is not installed, please install it first");
+      return;
+    }
+
+    var to = dappAddress;
+    var value = "0";
+    var callFunction = "getIn";
+    var callArgs = `[{"date":"${this.state.date}","content":"${this.state.content}"}]`;
+    serialNumberGet = nebPay.call(to, value, callFunction, callArgs, {    //使用nebpay的call接口去调用合约,
+      //设置listener, 处理交易返回信息
+      listener: (resp) => this.cbPush(resp)
+    });
+
+    intervalQueryGet = setInterval(() => {
+      this.funcGetQuery();
+    }, 5000);
+
+  }
+
+  funcGetQuery() {
+    nebPay.queryPayInfo(serialNumberGet)   //search transaction result from server (result upload to server by app)
+      .then((resp) => {
+        console.log("tx result: " + resp)   //resp is a JSON string
+        var respObject = JSON.parse(resp)
+        if (respObject.code === 0) {
+          this._getRealRecord(respObject.data.from);
+          clearInterval(intervalQueryGet);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
+
+
+
 
   cbResult(resp) {
     var result = resp.result    ////resp is an object, resp.result is a JSON string
@@ -125,38 +175,67 @@ export default class IndexPage extends Component {
         //result is the error message
       }
       this.setState({
-        record: result.value
+        records: result.value,
       });
       this.forceUpdate();
     } else {
       this.setState({
-        record: []
+        records: [],
       });
     }
   }
 
-  changeContent(e) {
+  _changeContent(e) {
     this.setState({
       content: e.target.value
     })
   }
-  changeAuthor(e) {
-    this.setState({
-      author: e.target.value
-    })
-  }
-  _refresh() {
-    if (this.state.selectName !== '') {
-      this._getRecord(this.state.selectName);
-    } else {
-
-      this._getRecord("", this.state.num);
-    }
-  }
   render() {
     return (
-      <div className={'mod mod-profitList ani'}>
-        <Datetime />
+      <div className={'mod-profitList'}>
+        <span className='title'>记事本 </span>
+        <div className="commit">
+          {this.state.records.length > 0 && this.state.records.map((item, index) => {
+            return (
+              <div className="itemContent" key={index}>
+              <div>
+                <span id="commitItem">{item.date}</span>
+                <span id="commitItem">:</span>
+                <span id="commitItem">{item.content}</span>
+                </div>
+                <button className="delBtn" onClick={this._submit.bind(null,item.date)}>删除</button>
+              </div>
+            );
+          })}
+          {this.state.records.length===0 &&<span id="commitItem">去添加日记或者点击获取</span>}
+        </div>
+        <div className='aaaa'>
+          <input type="text" id="add_value" className='address' ref="myTextInput" placeholder="输入钱包地址" onChange={(e) => {
+            this.setState({
+              address:e.target.value,
+            })
+          }} /> 
+         <button className={"addBtn a"} onClick={this._getRealRecord.bind(this,this.state.address)}>获得记事本内容</button>
+        </div>
+        <div className='line' />
+        <div className='addNew'>
+          <span className='newAction'>新增事件</span>
+          <div className='time'>
+            <span className='newAction'>时间</span>
+            <DatePicker className={'date'} defaultValue={moment('2018-01-01', 'YYYY-MM-DD')} size='large' onChange={(date, dateString) => {
+              this.setState({
+                date: dateString
+              })
+            }}>
+            </DatePicker>
+          </div>
+
+          <div className='action'>
+            <span className='newAction'>事件</span>
+            <input type="text" id="add_value" ref="myTextInput" placeholder="输入事件" onChange={(e) => this._changeContent(e)} />
+          </div>
+          <button className="addBtn" onClick={() => this._submit()}>添加</button>
+        </div>
       </div>
     );
   }

@@ -1,6 +1,6 @@
 'use strict';
 
-var ChatRecordItem = function(text) {
+var dayItem = function(text) {
     if (text) {
         var obj = JSON.parse(text);
         this.author = obj.author;
@@ -8,21 +8,20 @@ var ChatRecordItem = function(text) {
 
     } else {
         this.author = "";
-        this.key = "";
         this.value = [];
     }
 };
 
-ChatRecordItem.prototype = {
+dayItem.prototype = {
     toString: function() {
         return JSON.stringify(this);
     }
 };
 
-var WorldCup = function() {
+var MyDays = function() {
     LocalContractStorage.defineMapProperty(this, "local", {
         parse: function(text) {
-            return new ChatRecordItem(text);
+            return new dayItem(text);
         },
         stringify: function(o) {
             return o.toString();
@@ -30,40 +29,60 @@ var WorldCup = function() {
     });
 };
 
-WorldCup.prototype = {
+MyDays.prototype = {
     init: function() {
         //TODO:
     },
-    save: function(key, value) {
-        key = key.trim();
-        // value = value.trim();
+    save: function(value) {
+        // key = key.trim();
+        // // value = value.trim();
 
-        if (key === "" || value === "") {
-            throw new Error("empty key / value");
-        }
-        if (value.length > 64 || key.length > 64) {
-            throw new Error("key / value exceed limit length")
-        }
+        // if (key === "" || value === "") {
+        //     throw new Error("empty key / value");
+        // }
+        // if (value.length > 64 || key.length > 64) {
+        //     throw new Error("key / value exceed limit length")
+        // }
 
         var from = Blockchain.transaction.from;
 
-        var dictItem = this.local.get(key);
+        var dictItem = this.local.get(from);
         if (!dictItem) {
-            dictItem = new ChatRecordItem();
+            dictItem = new dayItem();
         }
         dictItem.author = from;
-        dictItem.key = key;
         dictItem.value.push(value);
-        return this.local.set(key, dictItem);
+        return this.local.set(from, dictItem);
     },
 
-    get: function(key) {
-        key = key.trim();
-        if (key === "") {
-            throw new Error("empty key")
+    del: function(date) {
+        // key = key.trim();
+        var from = Blockchain.transaction.from;
+        // if (key === "") {
+        //     throw new Error("empty key")
+        // }
+
+        var resp = this.local.get(from);
+        // var dictItem = resp;
+        for (let index = 0; index < resp.value.length; index++) {
+            const element = resp.value[index];
+            if (element["date"] === date) {
+                resp.value.splice(index,1);
+                this.local.set(from, resp);
+                return true;
+            }
         }
+        return date;
+    },
+
+    getIn: function(key) {
+        var from = Blockchain.transaction.from;
+        return this.local.get(from);
+    },
+    get: function(key) {
         return this.local.get(key);
     }
+
 };
 
-module.exports = WorldCup;
+module.exports = MyDays;

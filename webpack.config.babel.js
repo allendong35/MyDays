@@ -8,7 +8,6 @@ const mainFilePath = 'myDays/*.js';
 const srcPath = path.join(__dirname,'src');
 const distPath = path.join(__dirname, 'dist');
 import HappyPack from 'happypack';
-
 function getHtmlPlugins() {
   return glob.sync(mainFilePath,{cwd:mainPath}).map((file)=>{
 
@@ -17,7 +16,7 @@ function getHtmlPlugins() {
     return new HtmlWebpackPlugin({
       filename: `${name}.html`,//相对于output.path而言
       template: 'public/index.html',//本地模板文件
-      title:'我们的纪念日',
+      title:'days',
       chunks: [name],
       minify: {minifyJS: true, collapseWhitespace: true},//压缩
       inject: true//注入静态资源，true所有JavaScript资源插入到body元素的底部
@@ -162,7 +161,7 @@ module.exports = {
           //     test: /\.scss$/, 
           //     loader: 'style-loader!css-loader'
           // },
-          // { test: /\.css$/, loader: "style-loader!css-loader",  exclude: /node_modules/},
+          { test: /\.css$/, loader: "style-loader!css-loader"},
           { test: /\.scss$/, loader: "style-loader!css-loader!sass-loader?outputStyle=expanded", exclude: /node_modules/},
           { test:/\.(png|gif|jpg|jpeg|bmp)$/i, loader:'file-loader?name=images/[hash:8].[name].[ext]' },  // 限制大小5kb
         ]

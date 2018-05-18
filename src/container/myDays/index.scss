@@ -1,94 +1,103 @@
 @import "src/assets/common/scss/index";
 
 .mod-profitList {
+  background: url(./img/bj.jpg);
+  height: 742px;
+  width:100%;
   display: flex;
   flex-direction: column;
-  background: url(./img/bj.jpg);
-  .head{
-    transition: padding 0.5s cubic-bezier(0.42, 0, 0.33, 1.24) 0s;
-    height:396px;
-    width:100%;
-    // background: url() no-repeat center center;
+  align-items: center;
+  .title{
+    align-self: left;
+    margin-top: 50px;
+    font-size: 25px;
+    margin-left: 100%*1/8;
   }
-  .subTitle{
-    align-self: center;
-    font-size:36px;
-  }
-  .selectDiv{
+  .commit{
     display: flex;
-    align-items: center;
-    align-self: center;
-    flex-direction: row;
-    .country{
-      font-size: 20px;
-    }
-    .select{
-      width:100px;
-      margin-right: 50px;
-    }
+    flex-direction: column;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    width: 100%*3/4;
+    justify-content: left;
+    height: 300px;
+    padding: 10px;
+    #commitItem{
+       font-size: 20px;
+       padding: 5px;
+      }
   }
-  .cotuntryFlag{
-    margin-bottom: 20px;
+  .line{
+    margin-top: 30px;
+    margin-bottom: 30px;
+    height: 3px;
+    width: 100%*3/4;
+    background-color: black;
   }
-  .option {
-    font-size: 20px;
-  }
-  .content{
+  .addNew{
     display: flex;
-    justify-content: space-between;
-    height: 500px;
-    width: 100%;
-    .countryInfo{
+    flex-direction: column;
+    width: 100%*3/4;
+   
+    .time{
       width: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      
+      margin-top: 15px;
     }
-    .commitView{
-      width: 100%;
+
+    .action{
       display: flex;
-      align-items: center;
+      flex-direction: row;
       justify-content: center;
-      flex-direction: column;
-      .commit{
-        display: flex;
-        flex-direction: column;
-        overflow-x: hidden;
-        overflow-y: scroll;
-        width: 100%*2/3;
-        justify-content: left;
-        background-color: #eee;
-        height: 400px;
-        padding: 10px;
-        #commitItem{
-           font-size: 15px;
-           padding: 5px;
-          }
-      }
-      .add_banner{
-        display: flex;
-        width: 100%*2/3;
-        justify-content: center;
-        #add_value{
-          width: 63%;
-          height: 50px;
-          font-size: 15px;
-        }
-        #smallName{
-          width: 15%;
-          height: 50px;
-          font-size: 15px;
-          text-align: center;
-        }
-        #push{
-          flex: 1;
-          font-size: 15px;
-        }
-      }
+      margin-top: 15px;
+      width:100%;
+
+     
     }
     
   }
+  #add_value{
+    flex: 1;
+    height: 40px;
+    font-size: 15px;
+  }
+  .itemContent{
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .address{
+    width: 400px;
+  }
+  .newAction{
+    font-size: 15px;
+    line-height: 40px;
+    margin-right: 10px;
+  }
   
+  .delBtn{
+    border-radius: 5px;
+    width: 60px;
+    height: 20px;
+    font-size: 12px;
+  }
+
+  .addBtn{
+    align-self: left;
+    border-radius: 5px;
+    width: 160px;
+    height: 40px;
+    font-size: 15px;
+    margin-top: 15px;
+    &.a{
+      margin-top: 0px;
+    }
+  }
+  .aaaa{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+
+  }
 }
