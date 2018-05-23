@@ -52,7 +52,8 @@ MyDays.prototype = {
         }
         dictItem.author = from;
         dictItem.value.push(value);
-        return this.local.set(from, dictItem);
+        this.local.set(from, dictItem);
+        return from;
     },
 
     del: function(date) {
