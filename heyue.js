@@ -56,7 +56,7 @@ MyDays.prototype = {
         return from;
     },
 
-    del: function(date) {
+    del: function(date,content) {
         // key = key.trim();
         var from = Blockchain.transaction.from;
         // if (key === "") {
@@ -67,7 +67,7 @@ MyDays.prototype = {
         // var dictItem = resp;
         for (let index = 0; index < resp.value.length; index++) {
             const element = resp.value[index];
-            if (element["date"] === date) {
+            if (element["date"] === date && element["content"] === content) {
                 resp.value.splice(index,1);
                 this.local.set(from, resp);
                 return true;

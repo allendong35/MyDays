@@ -17,8 +17,8 @@ var nebPay = new NebPay();
 var serialNumber;
 var intervalQuery = null;
 // var dappAddress = "n1hJcYVKqJBwo7NqJ8HKgxfmxe12nZAoCjk";
-var dappAddress = "n1rELuCMwhFJYDhTEEtGA9V2PYCcMcs9WP3";
-// 6c5383cab0a9f366ceaf471f1145cf4d9ea77edcfdcaaa057f8fa491514dbd6c
+var dappAddress = "n1tBAf7SdWmJ6kYMvX79QzY3KJ4fE3SmtXy";
+// f38a1b6fb66c9d33c3a6439670175961902e986c3d28e4144991f4f34b520e0a
 export default class IndexPage extends Component {
   static displayName = 'MyDays';
   static propTypes = {
@@ -35,7 +35,7 @@ export default class IndexPage extends Component {
     };
   }
 
-  _submit = (date) => {
+  _submit = (item) => {
 
     if (!date) {
       if (this.state.date === '' || this.state.content === '') {
@@ -52,9 +52,9 @@ export default class IndexPage extends Component {
     var value = "0";
     var callFunction;
     var callArgs;
-    if (date) {
+    if (item) {
       callFunction = "del";
-      callArgs = `["${date}"]`;
+      callArgs = `["${item.date}","${item.content}"]`;
     } else {
       callFunction = "save";
       callArgs = `[{"date":"${this.state.date}","content":"${this.state.content}"}]`;
@@ -181,7 +181,7 @@ export default class IndexPage extends Component {
                       <span id="commitItem">:</span>
                       <span id="commitItem">{item.content}</span>
                     </div>
-                    <button className="delBtn" onClick={this._submit.bind(null, item.date)}>删除</button>
+                    <button className="delBtn" onClick={this._submit.bind(null, item)}>删除</button>
                   </div>
                 );
               })}
