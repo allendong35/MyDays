@@ -15,7 +15,7 @@ neb.setRequest(new nebulas.HttpRequest("https://mainnet.nebulas.io"));
 //
 var nebPay = new NebPay();
 var serialNumber;
-var intervalQuery;
+var intervalQuery = null;
 // var dappAddress = "n1hJcYVKqJBwo7NqJ8HKgxfmxe12nZAoCjk";
 var dappAddress = "n1rELuCMwhFJYDhTEEtGA9V2PYCcMcs9WP3";
 // 6c5383cab0a9f366ceaf471f1145cf4d9ea77edcfdcaaa057f8fa491514dbd6c
@@ -129,20 +129,26 @@ export default class IndexPage extends Component {
         this.setState({
           address: result.author,
         })
-        if (!intervalQuery) {
-          intervalQuery = setInterval(() => {
-            this.funcIntervalQuery();
-          }, 3000);
-        }
       } catch (err) {
         //result is the error message
       }
       if (result.value.length > this.state.records.length) {
-        alert('scuess');
+       if (intervalQuery !== null) {
+        alert('添加成功');
+       }
       } else if (result.value.length < this.state.records.length) {
         alert('删除成功');
       } else {
+        if (intervalQuery !== null) {
         return;
+        }
+      }
+      if (intervalQuery === null) {
+        alert('成功获得记事本内容'); 
+        intervalQuery = setInterval(() => {
+          this.funcIntervalQuery();
+        }, 1000);
+       
       }
       this.setState({
         records: result.value,
@@ -185,6 +191,7 @@ export default class IndexPage extends Component {
               <input type="text" id="add_value" ref="myTextInput11" className='address' value={this.state.address} placeholder="输入钱包地址" />
               <button className={"addBtn a"} onClick={() => {
                 clearInterval(intervalQuery);
+                intervalQuery=null;
                 this._getRealRecord(this.refs.myTextInput11.value);
               }
               }>获得记事本内容</button>
