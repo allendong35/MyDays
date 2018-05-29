@@ -81,7 +81,7 @@ MyDays.prototype = {
         return this.local.get(from);
     },
     get: function(key) {
-        return this.local.get(key);
+        return {'form':key,'item':this.local.get(key)};
     }
 
 };

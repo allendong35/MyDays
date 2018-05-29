@@ -17,8 +17,8 @@ var nebPay = new NebPay();
 var serialNumber;
 var intervalQuery = null;
 // var dappAddress = "n1hJcYVKqJBwo7NqJ8HKgxfmxe12nZAoCjk";
-var dappAddress = "n1tBAf7SdWmJ6kYMvX79QzY3KJ4fE3SmtXy";
-// f38a1b6fb66c9d33c3a6439670175961902e986c3d28e4144991f4f34b520e0a
+var dappAddress = "n1yVAJhvCAaTfM928RXpaXVuj22KmG6KoBd";
+// 2ccd0d47ef6023b2e2056125863acea8a68c4fcac158799a78ba8dc4501c0fd8
 export default class IndexPage extends Component {
   static displayName = 'MyDays';
   static propTypes = {
@@ -37,7 +37,7 @@ export default class IndexPage extends Component {
 
   _submit = (item) => {
 
-    if (!date) {
+    if (!item) {
       if (this.state.date === '' || this.state.content === '') {
         alert("请输入内容或选择时间");
         return;
@@ -120,45 +120,47 @@ export default class IndexPage extends Component {
   cbResult(resp) {
     var result = resp.result    ////resp is an object, resp.result is a JSON string
     console.log("return of rpc call: " + JSON.stringify(result))
-
+   
     if (result !== 'null') {
       //if result is not null, then it should be "return value" or "error message"
       try {
-
         result = JSON.parse(result)
-        this.setState({
-          address: result.author,
-        })
       } catch (err) {
+        return;
         //result is the error message
       }
-      if (result.value.length > this.state.records.length) {
+      this.setState({
+        address: result.form,
+      })
+      if (result.item) {
+      if (result.item.value.length > this.state.records.length) {
        if (intervalQuery !== null) {
         alert('添加成功');
        }
-      } else if (result.value.length < this.state.records.length) {
+      } else if (result.item.value.length < this.state.records.length) {
         alert('删除成功');
       } else {
         if (intervalQuery !== null) {
         return;
         }
       }
+      this.setState({
+        records: result.item.value,
+      });
+    }
       if (intervalQuery === null) {
         alert('成功获得记事本内容'); 
         intervalQuery = setInterval(() => {
           this.funcIntervalQuery();
         }, 1000);
-       
       }
-      this.setState({
-        records: result.value,
-      });
       this.forceUpdate();
     } else {
       this.setState({
         records: [],
       });
     }
+   
   }
 
   _changeContent(e) {
