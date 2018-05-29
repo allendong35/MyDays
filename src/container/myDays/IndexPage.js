@@ -35,9 +35,9 @@ export default class IndexPage extends Component {
     };
   }
 
-  _submit = (item) => {
+  _submit = (date) => {
 
-    if (!item) {
+    if (!date) {
       if (this.state.date === '' || this.state.content === '') {
         alert("请输入内容或选择时间");
         return;
@@ -52,9 +52,9 @@ export default class IndexPage extends Component {
     var value = "0";
     var callFunction;
     var callArgs;
-    if (item) {
+    if (date) {
       callFunction = "del";
-      callArgs = `["${item.date}","${item.content}"]`;
+      callArgs = `["${date.date}","${date.content}"]`;
     } else {
       callFunction = "save";
       callArgs = `[{"date":"${this.state.date}","content":"${this.state.content}"}]`;
